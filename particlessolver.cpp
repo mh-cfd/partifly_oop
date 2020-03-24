@@ -130,9 +130,10 @@ void ParticlesSolver::sweep()
     std::vector <std::thread> th_vec;
     for (int i = 0; i < THREADNUM; ++i)
     {
-        //th_vec.push_back(std::thread(particlesStep ,i));
-        particlesStep(i);
-        th_vec.push_back(std::thread(threadTest ,i, m_bodyVel[i]));
+        th_vec.push_back(std::thread(&ParticlesSolver::particlesStep, this , i));
+        //particlesStep(i);
+        //th_vec.push_back(std::thread(threadTest ,i, m_bodyVel[i]));
+        //th_vec.push_back(std::thread(threadTest ,i, m_bodyVel[i]));
     }
     for (int i = 0; i < THREADNUM; ++i)
     {

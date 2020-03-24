@@ -4,7 +4,7 @@ FieldsLoader::FieldsLoader()
 {
     m_readFileNum = 0;
     std::string  nameFile,nameForOpen;
-    std::string nameDir("/mnt/storage/MicroHH/RFFI_ATMOSPH/av3D/mean/vtk/");//"/mnt/storage/MicroHH/RFFI_ATMOSPH/av3D/mean/vtk/"///"/mnt/storage/MicroHH/boris/rb/vtk3D/"
+    std::string nameDir("/home/user/RFFI_Atmosph/data_for_partifly/");//"/mnt/storage/MicroHH/RFFI_ATMOSPH/av3D/mean/vtk/"///"/mnt/storage/MicroHH/boris/rb/vtk3D/"
     DIR *mydir = opendir(nameDir.data());
     if(mydir == NULL) {
         perror("opendir");

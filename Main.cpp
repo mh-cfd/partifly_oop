@@ -17,7 +17,7 @@ double d_temp;
 double mouse_x,mouse_y;
 double r_2g=0.0;
 int kCur= 0;
-double sc=1.0;
+double sc=0.01;
 int view=VIEW_U;
 int redr=0;
 double ck=2.0;
@@ -35,62 +35,62 @@ double* x;
 double* y;
 double* z;
 
-void display(void)
-{
 
+
+double view_x=14.507903;
+double view_y=8.300000;
+double view_z=24.2;
+
+
+double o_x=0.0;
+double o_y=0.0;
+double o_z=0.0;
+
+void display(void)
+{   
+    int i,j,k,l,ii,jj;
+    double l_2,tx,ty,tx0,ty0,vx,vy,v0x,v0y;
+
+
+    double orient_x=0.0;
+    double orient_y=0.0;
+    double orient_z=5.0;
+
+
+
+    glEnable(GL_DEPTH_TEST);
+   glClearColor(0.0, 0.0, 0.0, 0.0);
+   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+   glLoadIdentity();
+
+    glLineWidth(1);
+    glScalef(sc,sc,sc);
+   o_x=cos(-ry/20)*cos(-rx/20);
+   o_y=cos(-ry/20)*sin(-rx/20);
+   o_z=sin(-ry/20);
+
+
+   //printf("rx=%f ry=%f view_x=%f view_y=%f view_z=%f angle=%f \n",rx,ry,view_x,view_y,view_z,angle);
+
+   orient_x=view_x+o_x;
+   orient_y=view_y+o_y;
+   orient_z=view_z+o_z;
+
+   gluLookAt(view_x,view_y,view_z,orient_x,orient_y,orient_z,0,0,1);
+
+    //////////////////////////
     if (redr==1)
     {
         for (int i=0;i<1;i++)
             sweep();
     }
 
-    if (clearc)
-        glClear(GL_COLOR_BUFFER_BIT);
-
-    glLoadIdentity();
-
-    glTranslatef(x[NX/2],z[NZ/2],y[NY/2]);
-    glScalef(sc,sc,sc);
-    glRotatef(-90,1,0,0);
-    glRotatef(ry,1.0,0,0);
-    glRotatef(rx,0.0,1.0,0);
-    //glRotatef(90,1,0,0);
-    glTranslatef(-x[NX/2],-z[NZ/2],-y[NY/2]);
 
     glColor3f(1,1,1);
-    double l_2;
-
-    for (int i=0;i<NX-1;i++)
-    {
-        /*glBegin(GL_TRIANGLE_STRIP);
+    //double l_2;
 
 
-        for (int j=0;j<NY;j++)
-        {
-            if (view==VIEW_U)
-                l_2=ck*(u[i][j][kCur]);
-            if (view==VIEW_V)
-                l_2=ck*(v[i][j][kCur]);
-            if (view==VIEW_W)
-                l_2=ck*(w[i][j][kCur]);
-            glColor3f(l_2,l_2,-l_2);
-            glVertex3f(x[i],y[j],z[kCur]);
-
-            if (view==VIEW_U)
-                l_2=ck*(u[i+1][j][kCur]);
-            if (view==VIEW_V)
-                l_2=ck*(v[i+1][j][kCur]);
-            if (view==VIEW_W)
-                l_2=ck*(w[i+1][j][kCur]);
-
-            glColor3f(l_2,l_2,-l_2);
-            glVertex3f(x[i+1],y[j],z[kCur]);
-        }
-
-        glEnd();*/
-    }
-
-    double scale =150;
 
 
     double dxDepos = (x[NX - 1] - x[0]) / (NXDepos-1);
@@ -116,12 +116,11 @@ void display(void)
     {
         for( int j=0; j < NYDepos-1; j++ )
         {
-
             glColor3f(sumMass[i][j]  / maxSumMass ,0,0);
-            glVertex3f(scale*i * dxDepos ,  scale*z[0] - 0.1, scale*j * dyDepos);
-            glVertex3f(scale*i * dxDepos, scale*z[0] - 0.1 , scale*(j+1) * dyDepos);
-            glVertex3f(scale*(i+1) * dxDepos , scale*z[0] - 0.1, scale*(j+1) * dyDepos);
-            glVertex3f(scale*(i+1) * dxDepos , scale*z[0] - 0.1, scale*j * dyDepos);
+            glVertex3f(i * dxDepos ,    j * dyDepos, z[0] - 0.1);
+            glVertex3f(i * dxDepos,(j+1) * dyDepos, z[0] - 0.1 );
+            glVertex3f((i+1) * dxDepos ,(j+1) * dyDepos, z[0] - 0.1);
+            glVertex3f((i+1) * dxDepos ,j * dyDepos, z[0] - 0.1);
         }
     }
     glEnd();
@@ -145,11 +144,11 @@ void display(void)
 
     for( int i=0; i<partSolver->m_numParticles[0]; i++ )
     {
-        glBegin(GL_POINTS);//(GL_LINE_STRIP);
-        for( int j=0; j<partSolver->num_save[i]; j++ )
+        glBegin/*(GL_POINTS);*/(GL_LINE_STRIP);
+        for( int j=1; j<partSolver->num_save[i]-1; j++ )
         {
             glColor3f(ck*fabs(partSolver->u_save[i][j])/vel_scale,ck*fabs(partSolver->v_save[i][j])/vel_scale,ck*fabs(partSolver->w_save[i][j])/vel_scale);
-            glVertex3f(scale*partSolver->x_save[i][j],scale*partSolver->z_save[i][j],scale*partSolver->y_save[i][j]);
+            glVertex3f(partSolver->x_save[i][j],partSolver->y_save[i][j],partSolver->z_save[i][j]);
         }
         glEnd();
     }
@@ -159,18 +158,18 @@ void display(void)
 
     glColor3f(0.5,0.5,0.5);
     glBegin(GL_LINE_LOOP);
-    glVertex3f(scale*x[0],scale*z[0],scale*y[0]);
-    glVertex3f(scale*x[NX-1],scale*z[0],scale*y[0]);
-    glVertex3f(scale*x[NX-1],scale*z[0],scale*y[NY-1]);
-    glVertex3f(scale*x[0],scale*z[0],scale*y[NY-1]);
+    glVertex3f(x[0], y[0],  z[0]);
+    glVertex3f(x[NX-1],y[0],z[0]);
+    glVertex3f(x[NX-1],y[NY-1],z[0]);
+    glVertex3f(x[0],   y[NY-1],z[0]);
     glEnd();
 
     glColor3f(1,1,1);
     glBegin(GL_LINE_LOOP);
-    glVertex3f(scale*x[0],scale*z[NZ-1],scale*y[0]);
-    glVertex3f(scale*x[NX-1],scale*z[NZ-1],scale*y[0]);
-    glVertex3f(scale*x[NX-1],scale*z[NZ-1],scale*y[NY-1]);
-    glVertex3f(scale*x[0],scale*z[NZ-1],scale*y[NY-1]);
+    glVertex3f(x[0], y[0],  z[NZ-1]);
+    glVertex3f(x[NX-1],y[0],z[NZ-1]);
+    glVertex3f(x[NX-1],y[NY-1],z[NZ-1]);
+    glVertex3f(x[0], y[NY-1],  z[NZ-1]);
     glEnd();
 
     glPointSize(3.0);
@@ -263,7 +262,70 @@ void kb(unsigned char key, int x, int y)
         printf("viewing W \n");
     }
 
-    if (key=='m')
+
+
+
+    if (key=='w')
+      {
+        view_x+=(o_x)*100.1;  //sf*=1.1;
+        view_y+=(o_y)*100.1;
+        view_z+=(o_z)*100.1;
+      }
+
+    if (key=='s')
+      {
+
+        view_x-=(o_x)*100.1;  //sf*=1.1;
+        view_y-=(o_y)*100.1;
+        view_z-=(o_z)*100.1;
+
+
+      }
+
+
+    if (key=='q')
+      {
+
+         view_z+=30.1;
+
+      }
+
+    if (key=='e')
+      {
+
+         view_z-=30.1;
+
+
+
+      }
+
+
+
+    if (key=='a')
+      {
+        double l2=sqrt(o_y*o_y+o_x*o_x);
+
+        view_y+=(o_x)*100.1/l2;  //sf*=1.1;
+
+
+        view_x+=-(o_y)*100.1/l2;
+      }
+
+    if (key=='d')
+      {
+        double    l2=sqrt(o_y*o_y+o_x*o_x);
+        view_x+=(o_y)*100.1/l2;  //sf*=1.1;
+
+        view_y+=-(o_x)*100.1/l2;
+
+
+      }
+
+
+
+
+
+/*    if (key=='m')
     {
 
 
@@ -277,7 +339,7 @@ void kb(unsigned char key, int x, int y)
     if (key=='s')
     {
         sweep();
-    }
+    }*/
 
     if (key==' ')
     {
@@ -297,6 +359,24 @@ void sweep_init()
     x = partSolver->m_x;
     y = partSolver->m_y;
     z = partSolver->m_z;
+
+    double x0=x[0];
+    double y0=y[0];
+    double z0=z[0];
+
+
+    double x1=x[NX-1];
+    double y1=y[NY-1];
+    double z1=z[NZ-1];
+
+
+
+    view_x=x0-0.1*(x1+x0);
+    view_y=0.5*(y0+y1);
+    view_z=0.5*(z0+z1);
+
+   // gluLookAt(view_x,view_y,view_z,orient_x,orient_y,orient_z,0,1,0);
+
 }
 
 void sweep()
@@ -311,8 +391,19 @@ void init()
     glColor3f(1.0, 1.0, 1.0);
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity ();
-    glOrtho(x[0]-1000, x[NX-1]+1000,  z[0]-1000, z[NZ-1]+1000,y[0]-100000, y[NY-1]+100000);
+
+    /* set clear color to black */
+
+    gluPerspective(45.0f, W_WIDTH*1.0/W_HEIGHT, 0.1f, 250.0f);
+
+    // glOrtho(-15.0, 15.0, -15.0*(W_WIDTH*1.0/W_HEIGHT),15.0*(W_WIDTH*1.0/W_HEIGHT), -400.0, 400.0);
+    // glFrustum(-15.0, 15.0, -15.0*(W_WIDTH*1.0/W_HEIGHT),15.0*(W_WIDTH*1.0/W_HEIGHT), 0.1, 20.0);
     glMatrixMode (GL_MODELVIEW);
+    glEnable(GL_DEPTH_TEST);
+
+
+//    glOrtho(x[0]-1000, x[NX-1]+1000,  z[0]-1000, z[NZ-1]+1000,y[0]-100000, y[NY-1]+100000);
+  //  glMatrixMode (GL_MODELVIEW);
 }
 
 int main(int argc, char** argv)
