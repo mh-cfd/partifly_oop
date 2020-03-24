@@ -3,7 +3,7 @@
 #include "tools.h"
 #include "fieldsloader.h"
 
-#define MAXPARTICLES 3200
+#define MAXPARTICLES 9200
 #define NXDepos 30
 #define NYDepos 30
 
@@ -26,7 +26,7 @@ public:
     double m_tGridPrev;
     double m_dtSave;
     double m_tPrevSave;
-    double m_counter;
+    int m_counter;
     int m_numParticles[THREADNUM];
     vec3* m_bodyAccel[THREADNUM];
     vec4* m_bodyPos[THREADNUM];

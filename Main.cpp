@@ -141,11 +141,14 @@ void display(void)
     //printf("numPart=%d\n", numParticles[0]);
     vel_scale=sqrt(vel_scale/partSolver->m_numParticles[0]+0.00001);
 
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_BLEND);
+    glLineWidth(2.5);
 
     for( int i=0; i<partSolver->m_numParticles[0]; i++ )
     {
         glBegin/*(GL_POINTS);*/(GL_LINE_STRIP);
-        for( int j=1; j<partSolver->num_save[i]-1; j++ )
+        for( int j=0; j<partSolver->num_save[i]; j++ )
         {
             glColor3f(ck*fabs(partSolver->u_save[i][j])/vel_scale,ck*fabs(partSolver->v_save[i][j])/vel_scale,ck*fabs(partSolver->w_save[i][j])/vel_scale);
             glVertex3f(partSolver->x_save[i][j],partSolver->y_save[i][j],partSolver->z_save[i][j]);

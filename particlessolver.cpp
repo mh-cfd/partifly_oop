@@ -45,6 +45,7 @@ ParticlesSolver::ParticlesSolver()
     m_NX = m_dims[0];
     m_NY = m_dims[1];
     m_NZ = m_dims[2];
+    m_counter=0;
 
     stepGrid();
 }
@@ -53,8 +54,7 @@ void ParticlesSolver::particlesStep(int threadIdx)
 {
     createRandomParticles(threadIdx);
     int i;
-    if (threadIdx == 0)
-        m_counter++;
+
     for( i=0; i<m_numParticles[threadIdx]; i++ )
     {
         double a = (m_tParticles - m_tGridPrev)/(m_tGrid - m_tGridPrev);
@@ -102,6 +102,8 @@ void ParticlesSolver::particlesStep(int threadIdx)
     for( i=0; i<numToDel.size(); i++)
         deleteParticle(numToDel[i], threadIdx);
 
+    if (threadIdx == 0)
+        m_counter++;
 
     if (m_counter>10 && threadIdx == 0)
     {
@@ -114,6 +116,7 @@ void ParticlesSolver::particlesStep(int threadIdx)
             v_save[i][num_save[i]]=m_bodyVel[threadIdx][i].y;
             w_save[i][num_save[i]]=m_bodyVel[threadIdx][i].z;
             num_save[i]++;
+            if (num_save[i]>1000) num_save[i]=0;
         }
         m_counter=0;
     }
@@ -294,9 +297,9 @@ void ParticlesSolver::calcTurbulentVel(int threadIdx, const vec4&bodyP, int part
 vec4 ParticlesSolver::initPos(int threadIdx)
 {
     vec4 res;
-    res.x = m_x[0] + m_multyRand->get(threadIdx) * (m_x[m_NX-1] - m_x[0]);
-    res.y = m_y[0] + m_multyRand->get(threadIdx) * (m_y[m_NY-1] - m_y[0]);
-    res.z = m_z[0] + m_multyRand->get(threadIdx) * 0.1 * (m_z[m_NZ-1] - m_z[0]);
+    res.x = 0.5*(m_x[0]+m_x[m_NX-1]) + m_multyRand->get(threadIdx) * 0.16*(m_x[m_NX-1] - m_x[0]);//m_x[0] + m_multyRand->get(threadIdx) * (m_x[m_NX-1] - m_x[0]);
+    res.y = 0.5*(m_y[0]+m_y[m_NY-1]) + m_multyRand->get(threadIdx) * 0.16*(m_y[m_NY-1] - m_y[0]);//m_y[0] + m_multyRand->get(threadIdx) * (m_y[m_NY-1] - m_y[0]);
+    res.z = 0.25*(m_z[0]+m_z[m_NZ-1]) + m_multyRand->get(threadIdx) * 0.16 * (m_z[m_NZ-1] - m_z[0]);//m_z[0] + m_multyRand->get(threadIdx) * 0.1 * (m_z[m_NZ-1] - m_z[0]);
     res.count = 1;
     res.rho = 1.0;
     res.r = 0.01;
@@ -315,7 +318,9 @@ vec3 ParticlesSolver::initVel(int threadIdx)
 void ParticlesSolver::createRandomParticles(int threadIdx)
 {
     int curNum = m_numParticles[threadIdx];
-    int numToAdd = std::min(MAXPARTICLES, MAXPARTICLES - m_numParticles[threadIdx]);//std::min(int(rand()*1.0/RAND_MAX * 300.0), maxParticles - numParticles-1);
+    if  (m_multyRand->get(threadIdx)>0.9)
+    {
+    int numToAdd = std::min(/*MAXPARTICLES*/1, MAXPARTICLES - m_numParticles[threadIdx]);//std::min(int(rand()*1.0/RAND_MAX * 300.0), maxParticles - numParticles-1);
     m_numParticles[threadIdx] += numToAdd;
     for (int i = curNum; i < curNum + numToAdd; ++i)
     {
@@ -335,7 +340,16 @@ void ParticlesSolver::createRandomParticles(int threadIdx)
         m_bodyAccel[threadIdx][i].x=0.0;
         m_bodyAccel[threadIdx][i].y=0.0;
         m_bodyAccel[threadIdx][i].z=0.0;
+
+
     }
+    if (threadIdx==0)
+    {
+        for (int i=curNum;i<m_numParticles[threadIdx];i++)
+            num_save[i]=0;
+    }
+    }
+
 }
 
 void ParticlesSolver::deleteParticle(int particlesIdx, int threadIdx)
