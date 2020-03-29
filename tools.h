@@ -36,7 +36,7 @@
 #define RNX 3000
 #define RNY 2000
 
-#define THREADNUM 1
+#define THREADNUM 32
 
 double get_time(void);
 int strCompare(const void* a, const void* b);

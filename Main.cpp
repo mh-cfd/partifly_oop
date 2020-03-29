@@ -35,12 +35,9 @@ double* x;
 double* y;
 double* z;
 
-
-
 double view_x=14.507903;
 double view_y=8.300000;
 double view_z=24.2;
-
 
 double o_x=0.0;
 double o_y=0.0;
